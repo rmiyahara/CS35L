@@ -1,0 +1,233 @@
+Ryan Miyahara
+UCID: 804585999
+
+Setting Up
+----------
+To begin this assignment, I created a directory in my home directory labeled
+"Project4"
+
+$ mkdir Project4
+$ cd Project4
+
+Next, I needed to obtain the coreutils tarball as well as the renaming patch:
+
+$ wget https://web.cs.ucla.edu/classes/winter18/cs35L/assign/coreutils-with-bug
+.tar.gz
+$ wget https://web.cs.ucla.edu/classes/winter18/cs35L/assign/coreutils.diff
+
+Installing the Renaming Patch
+-----------------------------
+After this, I attempted to build the coreutils file as is. I went into the file
+directory, created after unzipping the file, and used emacs to read the INSTALL
+file.
+
+$ tar -xzvf coreutils-with-bug.tar.gz
+$ mv coreutils.diff coreutils-with-bug.tar.gz/coreutils.diff
+$ cd coreutils-with-bug
+$ ls
+$ emacs INSTALL
+
+The "INSTALL" file informed me that I would need to use:
+
+$ ./configure
+$ make
+$ make install
+
+This process was the same as last weeks, so I did the commands as instructed.
+The make command gave me an error logged below,
+
+In file included from utimecmp.c:41:0:
+utimens.h:2:5: error: conflicting types for 'futimens'
+ int futimens (int, char const *, struct timespec const [2]);
+     ^~~~~~~~
+In file included from utimecmp.h:25:0,
+                 from utimecmp.c:25:
+/usr/include/sys/stat.h:373:12: note: previous declaration of 'futimens' was he
+re
+ extern int futimens (int __fd, const struct timespec __times[2]) __THROW;
+            ^~~~~~~~
+
+as well as a few "Error 1" and "Error 2" statements. When I tried to run the
+"make install" command anyways, It gave me the same errors and accomplished
+nothing. It appears there are 2 functions titled "futimens" and they are of
+different types. My guess, before applying the "renaming patch" is that the
+patch will change the name of one of the functions allowing the make command to
+work as intended. A quick look at the patch through emacs has shown me that
+this is the case! The '-' lines all remove the headers and calls to the
+"futimens" function and replace them with "coreutils_futimens". To patch this
+into the main program, I ran the patch commands from last week's lab:
+
+$ patch -p0 < coreutils.diff
+
+This patch command gave me the output below:
+
+patching file lib/utimens.c
+patching file lib/utimens.h
+patching file src/copy.c
+patching file src/tee.c
+patching file src/touch.c
+
+After this I ran the "./configure", "make", and "make install" commands again.
+The configure and make commands worked out for me this time, but the install
+command still gave me issues listed below:
+
+/usr/local/cs/bin/install: cannot create regular file '/usr/local/bin/[': Read-
+only file system
+make[3]: *** [Makefile:941: install-binPROGRAMS] Error 1
+make[3]: Leaving directory '/w/home.18/ce/ugrad/miyahara/Project4/coreutils-wit
+h-bug/src'
+make[2]: *** [Makefile:1493: install-am] Error 2
+make[2]: Leaving directory '/w/home.18/ce/ugrad/miyahara/Project4/coreutils-wit
+h-bug/src'
+make[1]: *** [Makefile:1487: install] Error 2
+make[1]: Leaving directory '/w/home.18/ce/ugrad/miyahara/Project4/coreutils-wit
+h-bug/src'
+make: *** [Makefile:419: install-recursive] Error 1
+
+I felt like this wasn't the expected outcome, so I made a Piazza post asking
+for help. The response from an instructor reminded me to add the --prefix flag
+to the configure command. I made a directory called "tempbin" in the
+"coreutils-with-bug" directory. And used the "pwd" command to obtain its
+absolute address. I then reran the three commands and I received no errors!
+
+$ mkdir tempbin
+$ cd tempbin
+$ pwd
+$ cd ..
+$ ./configure --prefix="/u/ce/ugrad/miyahara/Project4/coreutils-with-bug/tempbi
+n/u/ce/ugrad/miyahara/Project4/coreutils-with-bug/tempbin"
+$ make
+$ make install
+
+Reproducing the Problem
+-----------------------
+To reproduce the bug, I went into my "tempbin" directory and used the commands
+from the assignment page.
+
+$ cd tempbin
+$ tmp=$(mktemp -d)
+$ cd $tmp
+$ touch -d '1918-11-11 11:00 GMT' wwi-armistice
+$ touch now
+$ sleep 1
+$ touch now1
+$ TZ=UTC0 ls -lt --full-time wwi-armistice now now1
+-rw-r--r-- 1 eggert csfac 0 1918-11-11 11:00:00.000000000 +0000 wwi-armistice
+-rw-r--r-- 1 eggert csfac 0 2017-01-25 00:11:55.528846902 +0000 now1
+-rw-r--r-- 1 eggert csfac 0 2017-01-25 00:11:54.524820127 +0000 now
+$ cd
+$ rm -fr $tmp
+
+The 3 lines after the TZ-UTC0 ls command is the output. As you can see, the
+file "created" in 1918 is listed at the top, ahead of the other files that were
+made "recently". I now attempted to use the debugger to find the source of the
+error.
+
+Using GDB to Find the Bug
+-------------------------
+From the last lab, I know an ls issue would be found in the file ls.c located
+in the "src" directory. Using the TA slides while I was in the "src" directory,
+I ran the ls.c file using GDB. To recreate the bug earlier, I recreated the
+"tmp" directory and ran GDB from there. Once in there I took a look at all the
+functions relating to time.
+
+$ gdb ~/Project4/coreutils-with-bug/src/ls
+(gdb) info functions
+
+The following functions were worth looking at:
+
+static int compare_atime(V, V);
+static int compare_ctime(V, V);
+static int compare_mtime(V, V);
+
+I then quit out of GDB using the "quit" command. I went back into it with using
+the method outlined in the TA slides. I used the following commands:
+
+$ gdb ~/Project4/coreutils-with-bug/src/./ls
+(gdb) run -lt wwi-armistice now now1
+(gdb) break [FUNCTION NAME]
+(gdb) si
+
+I did this 3 times, replacing [FUNCTION NAME] with the three functions I found
+earlier. The first 2 didn't yield much, but the last one had a glaring issue
+due to using subtraction. Here are the problematic lines of code:
+
+48        int diff = a.tv_nsec - b.tv_nsec;
+49        return diff ? diff : a.tv_nsec - b.tv_nsec;
+
+This creates an issue due to overflow and how C handles unsigned integers, the
+data type for time (time cannot be negative). It appears here that if a.tv_nsec
+is a very small number while b.tv_sec is a very large number, their difference
+could over flow due to integers having half the range of unsigned integers.
+This makes sense because our file "now" has a very small time in nanoseconds
+due to being made very "recently" while the file "wwi-armistice" has a very
+larger value in nanoseconds due to being "made" 100 years ago. This overflow
+is what causes the times to be displayed incorrectly.
+
+Fixing the Bug
+--------------
+To fix the bug, I simply needed to remove the subtraction statement and replace
+it with a statement that will work in any case. The GDB output informed us that
+this function was located in ../lib/timespec.h.I made another file in my
+"Project4" directory also labelled timespec.h. I went to this file and used
+emacs to edit it. I copied the entire contents of the original timespec.h and
+pasted it into my new file. I then edited the new timespec.h. The fixes
+I made are in my lab4.diff file, but the change summarized is that I replaced
+the subtraction with a compare to always get the correct answer. The return
+line is in a format I have seen in CS 33. The '?' refers to an if statement for
+the argument before it, the argument after the question mark refers to the
+consequece of if and after the colon refers to the consequence of else. I
+then created my diff file by running a command. I made sure to put the old file
+first to not make a reverse patch.
+
+$ diff -u coreutils-with-bug/lib/timespec.h timespec.h >lab4.diff
+
+Testing in Home Directory
+-------------------------
+To test the bug in my home directory, I the following commands from the
+assignment page:
+
+$ touch -d '1918-11-11 11:00 GMT' wwi-armistice
+$ touch now
+$ sleep 1
+$ touch now1
+$ ls -lt
+
+Here is the output:
+
+-rw-r--r--  1 miyahara ceugrad    0 Dec 17  2054 wwi-armistice
+-rw-r--r--  1 miyahara ceugrad    0 Feb  8 18:27 now1
+-rw-r--r--  1 miyahara ceugrad    0 Feb  8 18:27 now
+
+As you can see, the bug is here as well. The time stamp is 2054 which is
+quite peculiar. It appears this is a different bug. Instead of knowing that the
+file was made far in the past, but displaying it before other files, this bug
+seems to be unaware that the file was made in the past and acts as if it was
+made far in the future.
+
+Testing my Patch
+----------------
+To test my patch I moved my diff file into the lib directory. Next, I ran the
+following commands:
+
+$ patch -p0 < lab4.diff
+$ ./configure --prefix="/u/ce/ugrad/miyahara/Project4/coreutils-with-bug/tempbi
+n/u/ce/ugrad/miyahara/Project4/coreutils-with-bug/tempbin"
+$ make
+$ make install
+$ tmp=$(mktemp -d)
+$ cd $tmp
+$ touch -d '1918-11-11 11:00 GMT' wwi-armistice
+$ touch now
+$ sleep 1
+$ touch now1
+$ TZ=UTC0 ls -lt --full-time wwi-armistice now now1
+-rw-r--r-- 1 miyahara ceugrad 0 2018-02-09 02:46:28.609781170 +0000 now1
+-rw-r--r-- 1 miyahara ceugrad 0 2018-02-09 02:46:21.905669681 +0000 now
+-rw-r--r-- 1 miyahara ceugrad 0 1918-11-11 11:00:00.000000000 +0000 wwi-armisti
+ce
+$ cd
+$ rm -fr $tmp
+
+The output after the ls -lt command shows that the bug has been patched
+successfully.

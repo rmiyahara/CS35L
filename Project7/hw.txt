@@ -1,0 +1,21 @@
+Ryan Miyahara
+UCID: 804585999
+
+1. If the other teams had actually been observing all the bytes across the
+server, the resulting network would still be secure because Ashley and I had
+given each other our public keys to encrypt our bytes. If the other teams had
+tapped our keyboards on the other hand, the network would no longer be secure.
+This is because the other teams would have our keystrokes before the network
+would be able to encode them. This means they would have our username and
+passwords which would give them access to the server. If the other teams
+physically had control of our the USB, our network wouldn't be secure either
+due to the other teams possibly having our private key.
+
+2. The gpg --verify command doesn't really verify that I personally created the
+tar in question because it simply compares the signature of the creator to the
+public key. This means anyone who wanted to could just use their own signature
+and public key and it would always match as long as it came from the same user.
+This problem has already been fixed using certificate authority. This gives out
+a test to see if the user that created the file originally and the public keys
+are the same. This way, someone couldn't simply swap out files and sign any
+name they like.

@@ -1,0 +1,122 @@
+Ryan Miyahara
+UCID: 804585999
+
+Setting Up
+----------
+To begin this lab, I created a directory in my home directory titled
+"Project6". I then checked my version of coreutils using the following
+command:
+
+$ mkdir Project6
+$ cd Project6
+$ sort --version
+sort (GNU coreutils) 8.29
+Copyright (C) 2017 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Written by Mike Haertel and Paul Eggert.
+
+The project specs stated that multithreading has become available to the sort
+command starting with version 8.6 which was released in 2010. The output told
+me I was running version 8.29 from 2017 which meant my coreutils supported
+multithreading.
+Next, I appended my path using the command below:
+
+$ export PATH=/usr/local/cs/bin:$PATH
+
+My last preparation step had me build a file containing 10,000,000 random
+floats, in textual form, one per line, with no white space. I first looked at
+the od page linked on the assignment page. I noticed the -tf flag would provide
+the type of the data to be a signed float and the -N flag would cap the data
+at a set amount of bytes.
+
+$ uname -a
+Linux lnxsrv09.seas.ucla.edu 3.10.0-693.17.1.el7.x86_64 #1 SMP Sun Jan 14 10:36
+:03 EST 2018 x86_64 GNU/Linux
+
+This command and its output let me know that the Linux server was a 64-bit
+machine. This means that each float will take up 8 bytes rather than 4 if it
+it was on a 32-bit machine. Knowing this, my -N flag will indicate 80 million
+bytes. To test my od command, I created a file called "test1.txt" and used the
+following commands:
+
+$ touch test1.txt
+$ cat /dev/urandom | od -tf -N 80 >test1.txt
+$ emacs test1.txt
+
+This command set up 10 float values in the "test1.txt" file. I wanted to
+observe the format so I would know how to format out the white space and only
+allow 1 float per line. First I needed to remove the numbers in the first
+column of text. Looking back to week 2, I reviewed the regex expressions and
+found the following command would delete the first column of numbers.
+
+$ sed "s/[[:digit:]]*\S//"
+
+The expression used says any amount of digits is to be replaced by nothing.
+Next, I knew I could replace the remaining whitespace characters with the tr
+command. The first numbers had 3 - 4 spaces in front of them and 5 spaces after
+them. The last number had 1 space after it. I could replace all spaces with
+newline characters, then delete all empty lines. To do this, I used the
+following commands:
+
+$ tr " " "\n"
+$ sed "/^$/d"
+
+My complete, final command to make my 10,000,000 float file was:
+
+$ cat /dev/urandom | od -tf -N 80000000 | sed "s/[[:digit:]]*\S//" | tr " " "\n
+" | sed "/^$/d" >test.txt
+
+This command took a while to process, but once it worked, I used emacs to check
+the very beginning and very end of the file for formatting. Everything looked
+correct, so I was ready to begin the lab.
+
+Lab
+---
+The first portion of the lab had me run sort on test.txt and sending the output
+to /dev/null. The command to do this and its output are below.
+
+$ time -p sort -g test.txt >/dev/null
+real 42.83
+user 242.56
+sys 2.66
+
+After this, the lab had me use sort with the --parallel line option. This was
+repeated with 1, 2, 4, and 8 threads. Below are the commands with their
+respective outputs:
+
+$ time -p sort --parallel=1 -g test.txt >/dev/null
+real 207.00
+user 206.16
+sys 0.82
+
+$ time -p sort --parallel=2 -g test.txt >/dev/null
+real 106.56
+user 200.86
+sys 2.11
+
+$ time -p sort --parallel=4 -g test.txt >/dev/null
+real 63.94
+user 218.88
+sys 1.77
+
+$ time -p sort --parallel=8 -g test.txt >/dev/null
+real 37.58
+user 203.48
+sys 2.18
+
+The fastest performance of the 5 different trials was the 8 threaded sort
+according to real time. Looking at the numbers I received, the trial without
+multithreading finds itself between the 4 and 8 threaded trials. This makes
+sense after looking at the "info sort" page. According to the "--parallel"
+section, sort is set to 8 threads as a default. Another thing I noticed was
+the varying sys times for each trial. The single threaded trial has the lowest
+sys time by far. I believe this is due to the processor not having to switch
+between different threads, eliminating overhead. For the remaining trials, this
+value is similar. This is because the processor doesn't actually complete
+multiple tasks at the same time, but rather operates on one at a time,
+switching rapidly. It doesn't matter if the process has more threads, the
+amount of processing which needs to be done stays the same. For this reason,
+real times differ greatly while sys times do not. 

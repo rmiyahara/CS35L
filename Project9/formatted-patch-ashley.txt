@@ -1,0 +1,349 @@
+From 20f22ad6a075c61a074de5fa369a1554342d5482 Mon Sep 17 00:00:00 2001
+From: Ashley Sharon Miao <classmia@lnxsrv09.seas.ucla.edu>
+Date: Wed, 14 Mar 2018 21:30:34 -0700
+Subject: [PATCH] 2018-03-14  Ashley Sharon Miao 
+ <classmia@lnxsrv09.seas.ucla.edu>
+
+	* util.c: changed `this' into 'this'
+
+	* sdiff.c: changed `this' into 'this'
+
+	* dir.c: changed `this' into 'this'
+
+	* diff3.c: changed `this' into 'this'
+
+	* diff.c: changed `this' into 'this'
+
+	* cmp.c: changed `this' into 'this'
+---
+ src/cmp.c   | 10 +++++-----
+ src/diff.c  | 26 +++++++++++++-------------
+ src/diff3.c | 24 ++++++++++++------------
+ src/dir.c   |  6 +++---
+ src/sdiff.c |  2 +-
+ src/util.c  | 14 +++++++-------
+ 6 files changed, 41 insertions(+), 41 deletions(-)
+
+diff --git a/src/cmp.c b/src/cmp.c
+index 2455dc4..85b9cf0 100644
+--- a/src/cmp.c
++++ b/src/cmp.c
+@@ -115,7 +115,7 @@ try_help (char const *reason_msgid, char const *operand)
+   if (reason_msgid)
+     error (0, 0, _(reason_msgid), operand);
+   error (EXIT_TROUBLE, 0,
+-	 _("Try `%s --help' for more information."), program_name);
++	 _("Try '%s --help' for more information."), program_name);
+   abort ();
+ }
+ 
+@@ -134,7 +134,7 @@ specify_ignore_initial (int f, char **argptr, char delimiter)
+   if (! (e == LONGINT_OK
+ 	 || (e == LONGINT_INVALID_SUFFIX_CHAR && **argptr == delimiter))
+       || TYPE_MAXIMUM (off_t) < val)
+-    try_help ("invalid --ignore-initial value `%s'", arg);
++    try_help ("invalid --ignore-initial value '%s'", arg);
+   if (ignore_initial[f] < val)
+     ignore_initial[f] = val;
+ }
+@@ -185,7 +185,7 @@ usage (void)
+ 	  _("SKIP values may be followed by the following multiplicative suffixes:\n\
+ kB 1000, K 1024, MB 1,000,000, M 1,048,576,\n\
+ GB 1,000,000,000, G 1,073,741,824, and so on for T, P, E, Z, Y."),
+-	  _("If a FILE is `-' or missing, read standard input."),
++	  _("If a FILE is '-' or missing, read standard input."),
+ 	  _("Exit status is 0 if inputs are the same, 1 if different, 2 if trouble."));
+   emit_bug_reporting_address ();
+ }
+@@ -231,7 +231,7 @@ main (int argc, char **argv)
+ 	{
+ 	  uintmax_t n;
+ 	  if (xstrtoumax (optarg, 0, 0, &n, valid_suffixes) != LONGINT_OK)
+-	    try_help ("invalid --bytes value `%s'", optarg);
++	    try_help ("invalid --bytes value '%s'", optarg);
+ 	  if (n < bytes)
+ 	    bytes = n;
+ 	}
+@@ -257,7 +257,7 @@ main (int argc, char **argv)
+       }
+ 
+   if (optind == argc)
+-    try_help ("missing operand after `%s'", argv[argc - 1]);
++    try_help ("missing operand after '%s'", argv[argc - 1]);
+ 
+   file[0] = argv[optind++];
+   file[1] = optind < argc ? argv[optind++] : "-";
+diff --git a/src/diff.c b/src/diff.c
+index cc1b611..f347f61 100644
+--- a/src/diff.c
++++ b/src/diff.c
+@@ -57,9 +57,9 @@
+ struct regexp_list
+ {
+   char *regexps;	/* chars representing disjunction of the regexps */
+-  size_t len;		/* chars used in `regexps' */
+-  size_t size;		/* size malloc'ed for `regexps'; 0 if not malloc'ed */
+-  bool multiple_regexps;/* Does `regexps' represent a disjunction?  */
++  size_t len;		/* chars used in 'regexps' */
++  size_t size;		/* size malloc'ed for 'regexps'; 0 if not malloc'ed */
++  bool multiple_regexps;/* Does 'regexps' represent a disjunction?  */
+   struct re_pattern_buffer *buf;
+ };
+ 
+@@ -92,13 +92,13 @@ enum { binary = true };
+ 
+ /* When comparing directories, if a file appears only in one
+    directory, treat it as present but empty in the other (-N).
+-   Then `patch' would create the file with appropriate contents.  */
++   Then 'patch' would create the file with appropriate contents.  */
+ static bool new_file;
+ 
+ /* When comparing directories, if a file appears only in the second
+    directory of the two, treat it as present but empty in the other
+    (--unidirectional-new-file).
+-   Then `patch' would create the file with appropriate contents.  */
++   Then 'patch' would create the file with appropriate contents.  */
+ static bool unidirectional_new_file;
+ 
+ /* Report files compared that are the same (-s).
+@@ -330,7 +330,7 @@ main (int argc, char **argv)
+ 	      {
+ 		numval = strtoumax (optarg, &numend, 10);
+ 		if (*numend)
+-		  try_help ("invalid context length `%s'", optarg);
++		  try_help ("invalid context length '%s'", optarg);
+ 		if (LIN_MAX < numval)
+ 		  numval = LIN_MAX;
+ 	      }
+@@ -534,7 +534,7 @@ main (int argc, char **argv)
+ 	case HORIZON_LINES_OPTION:
+ 	  numval = strtoumax (optarg, &numend, 10);
+ 	  if (*numend)
+-	    try_help ("invalid horizon length `%s'", optarg);
++	    try_help ("invalid horizon length '%s'", optarg);
+ 	  horizon_lines = MAX (horizon_lines, MIN (numval, LIN_MAX));
+ 	  break;
+ 
+@@ -585,7 +585,7 @@ main (int argc, char **argv)
+ 	case TABSIZE_OPTION:
+ 	  numval = strtoumax (optarg, &numend, 10);
+ 	  if (! (0 < numval && numval <= SIZE_MAX) || *numend)
+-	    try_help ("invalid tabsize `%s'", optarg);
++	    try_help ("invalid tabsize '%s'", optarg);
+ 	  if (tabsize != numval)
+ 	    {
+ 	      if (tabsize)
+@@ -744,9 +744,9 @@ main (int argc, char **argv)
+ 	  if (argc - optind != 2)
+ 	    {
+ 	      if (argc - optind < 2)
+-		try_help ("missing operand after `%s'", argv[argc - 1]);
++		try_help ("missing operand after '%s'", argv[argc - 1]);
+ 	      else
+-		try_help ("extra operand `%s'", argv[optind + 2]);
++		try_help ("extra operand '%s'", argv[optind + 2]);
+ 	    }
+ 
+ 	  exit_status = compare_files (NULL, argv[optind], argv[optind + 1]);
+@@ -826,7 +826,7 @@ try_help (char const *reason_msgid, char const *operand)
+ {
+   if (reason_msgid)
+     error (0, 0, _(reason_msgid), operand);
+-  error (EXIT_TROUBLE, 0, _("Try `%s --help' for more information."),
++  error (EXIT_TROUBLE, 0, _("Try '%s --help' for more information."),
+ 	 program_name);
+   abort ();
+ }
+@@ -960,7 +960,7 @@ specify_value (char const **var, char const *value, char const *option)
+ {
+   if (*var && strcmp (*var, value) != 0)
+     {
+-      error (0, 0, _("conflicting %s option value `%s'"), option, value);
++      error (0, 0, _("conflicting %s option value '%s'"), option, value);
+       try_help (NULL, NULL);
+     }
+   *var = value;
+@@ -1159,7 +1159,7 @@ compare_files (struct comparison const *parent,
+ 	= dir_file_pathname (dir, last_component (fnm));
+ 
+       if (STREQ (fnm, "-"))
+-	fatal ("cannot compare `-' to a directory");
++	fatal ("cannot compare '-' to a directory");
+ 
+       if (stat (filename, &cmp.file[dir_arg].stat) != 0)
+ 	{
+diff --git a/src/diff3.c b/src/diff3.c
+index 0f11fdc..4976ecf 100644
+--- a/src/diff3.c
++++ b/src/diff3.c
+@@ -35,7 +35,7 @@
+ #include <xalloc.h>
+ #include <xfreopen.h>
+ 
+-/* The official name of this program (e.g., no `g' prefix).  */
++/* The official name of this program (e.g., no 'g' prefix).  */
+ #define PROGRAM_NAME "diff3"
+ 
+ #define AUTHORS \
+@@ -159,7 +159,7 @@ static bool overlap_only;
+ /* If nonzero, show information for DIFF_2ND diffs.  */
+ static bool show_2nd;
+ 
+-/* If nonzero, include `:wq' at the end of the script
++/* If nonzero, include ':wq' at the end of the script
+    to write out the file being edited.   */
+ static bool finalwrite;
+ 
+@@ -316,9 +316,9 @@ main (int argc, char **argv)
+   if (argc - optind != 3)
+     {
+       if (argc - optind < 3)
+-	try_help ("missing operand after `%s'", argv[argc - 1]);
++	try_help ("missing operand after '%s'", argv[argc - 1]);
+       else
+-	try_help ("extra operand `%s'", argv[optind + 3]);
++	try_help ("extra operand '%s'", argv[optind + 3]);
+     }
+ 
+   file = &argv[optind];
+@@ -351,7 +351,7 @@ main (int argc, char **argv)
+ 	 file instead.  */
+       common = 3 - common;
+       if (STREQ (file[0], "-") || STREQ (file[common], "-"))
+-	fatal ("`-' specified for more than one input file");
++	fatal ("'-' specified for more than one input file");
+     }
+ 
+   mapping[0] = 0;
+@@ -412,7 +412,7 @@ try_help (char const *reason_msgid, char const *operand)
+   if (reason_msgid)
+     error (0, 0, _(reason_msgid), operand);
+   error (EXIT_TROUBLE, 0,
+-	 _("Try `%s --help' for more information."), program_name);
++	 _("Try '%s --help' for more information."), program_name);
+   abort ();
+ }
+ 
+@@ -460,7 +460,7 @@ usage (void)
+     else
+       putchar ('\n');
+   printf ("\n%s\n%s\n",
+-	  _("If a FILE is `-', read standard input."),
++	  _("If a FILE is '-', read standard input."),
+ 	  _("Exit status is 0 if successful, 1 if conflicts, 2 if trouble."));
+   emit_bug_reporting_address ();
+ }
+@@ -1275,12 +1275,12 @@ read_diff (char const *filea,
+   if (EXIT_TROUBLE <= status)
+     error (EXIT_TROUBLE, werrno,
+ 	   _(status == 126
+-	     ? "subsidiary program `%s' could not be invoked"
++	     ? "subsidiary program '%s' could not be invoked"
+ 	     : status == 127
+-	     ? "subsidiary program `%s' not found"
++	     ? "subsidiary program '%s' not found"
+ 	     : status == INT_MAX
+-	     ? "subsidiary program `%s' failed"
+-	     : "subsidiary program `%s' failed (exit status %d)"),
++	     ? "subsidiary program '%s' failed"
++	     : "subsidiary program '%s' failed (exit status %d)"),
+ 	   diff_program, status);
+ 
+   return diff_result + total;
+@@ -1475,7 +1475,7 @@ undotlines (FILE *outputfile, bool leading_dot, long int start, lin num)
+    around the problems involved with changing line numbers in an ed
+    script.
+ 
+-   As in `output_diff3', the variable MAPPING maps from file number
++   As in 'output_diff3', the variable MAPPING maps from file number
+    according to the argument list to file number according to the diff
+    passed.  All files listed below are in terms of the argument list.
+    REV_MAPPING is the inverse of MAPPING.
+diff --git a/src/dir.c b/src/dir.c
+index 5b4eaec..1bb374f 100644
+--- a/src/dir.c
++++ b/src/dir.c
+@@ -125,7 +125,7 @@ dir_read (struct file_data const *dir, struct dirdata *dirdata)
+ #endif
+     }
+ 
+-  /* Create the `names' table from the `data' table.  */
++  /* Create the 'names' table from the 'data' table.  */
+   if (PTRDIFF_MAX / sizeof *names - 1 <= nnames)
+     xalloc_die ();
+   dirdata->names = names = xmalloc ((nnames + 1) * sizeof *names);
+@@ -154,7 +154,7 @@ compare_names (char const *name1, char const *name2)
+ 	r = strcoll (name1, name2);
+       if (errno)
+ 	{
+-	  error (0, errno, _("cannot compare file names `%s' and `%s'"),
++	  error (0, errno, _("cannot compare file names '%s' and '%s'"),
+ 		 name1, name2);
+ 	  longjmp (failed_locale_specific_sorting, 1);
+ 	}
+@@ -234,7 +234,7 @@ diff_dirs (struct comparison const *cmp,
+ 	qsort (names[i], dirdata[i].nnames, sizeof *dirdata[i].names,
+ 	       compare_names_for_qsort);
+ 
+-      /* If `-S name' was given, and this is the topmost level of comparison,
++      /* If '-S name' was given, and this is the topmost level of comparison,
+ 	 ignore all file names less than the specified starting name.  */
+ 
+       if (starting_file && ! cmp->parent)
+diff --git a/src/sdiff.c b/src/sdiff.c
+index 4344e8d..97aaf42 100644
+--- a/src/sdiff.c
++++ b/src/sdiff.c
+@@ -230,7 +230,7 @@ usage (void)
+     else
+       putchar ('\n');
+   printf ("\n%s\n%s\n",
+-	  _("If a FILE is `-', read standard input."),
++	  _("If a FILE is '-', read standard input."),
+ 	  _("Exit status is 0 if inputs are the same, 1 if different, 2 if trouble."));
+   emit_bug_reporting_address ();
+ }
+diff --git a/src/util.c b/src/util.c
+index 3be03e9..0375a99 100644
+--- a/src/util.c
++++ b/src/util.c
+@@ -146,8 +146,8 @@ print_message_queue (void)
+    to set up OUTFILE, the stdio stream for the output to go to.
+ 
+    Usually, OUTFILE is just stdout.  But when -l was specified
+-   we fork off a `pr' and make OUTFILE a pipe to it.
+-   `pr' then outputs to our stdout.  */
++   we fork off a 'pr' and make OUTFILE a pipe to it.
++   'pr' then outputs to our stdout.  */
+ 
+ static char const *current_name0;
+ static char const *current_name1;
+@@ -270,7 +270,7 @@ begin_output (void)
+ }
+ 
+ /* Call after the end of output of diffs for one file.
+-   Close OUTFILE and get rid of the `pr' subfork.  */
++   Close OUTFILE and get rid of the 'pr' subfork.  */
+ 
+ void
+ finish_output (void)
+@@ -298,12 +298,12 @@ finish_output (void)
+       if (status)
+ 	error (EXIT_TROUBLE, werrno,
+ 	       _(status == 126
+-		 ? "subsidiary program `%s' could not be invoked"
++		 ? "subsidiary program '%s' could not be invoked"
+ 		 : status == 127
+-		 ? "subsidiary program `%s' not found"
++		 ? "subsidiary program '%s' not found"
+ 		 : status == INT_MAX
+-		 ? "subsidiary program `%s' failed"
+-		 : "subsidiary program `%s' failed (exit status %d)"),
++		 ? "subsidiary program '%s' failed"
++		 : "subsidiary program '%s' failed (exit status %d)"),
+ 	       pr_program, status);
+     }
+ 
+-- 
+2.14.2
+

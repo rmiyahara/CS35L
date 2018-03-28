@@ -1,0 +1,117 @@
+Ryan Miyahara
+UCID: 804585999
+
+Setting Up
+----------
+To begin this lab, I needed to set up the drivers for the BeagleBone. To do
+this I plugged it into my PC through the micro USB cable. Next, I opened the
+device on my PC and opened the START.htm file. This took me to the page and I
+downloaded the 64-bit installer. Windows wouldn't allow me to install unsigned
+drivers so I opened a Command Prompt with admin privileges and used the
+following command:
+
+$ bcdedit /set testsigning on
+
+Now, the drivers were able to be installed. After restarting my machine, I used
+Putty to SSH into 192.168.7.2. I logged in as "root". I then ran the following
+commands:
+
+$ sudo connmanctl
+connmanctl> enable wifi
+connmanctl> scan wifi
+connmanctl> services
+connmanctl> agent on
+
+I then saw the connection I wanted to make, it had the following label:
+
+Ryan's Galaxy       wifi_2cf7f1066a13_5279616e27732047616c617879_managed_none
+
+I connected this one by using the following command:
+
+connmanctl> connect wifi_2cf7f1066a13_5279616e27732047616c617879_managed_none
+connmanctl> quit
+
+Then I used the "ifconfig" command to get my IP address: 192.168.43.147
+
+Next, I had to update my board and download Firefox. I did this with the
+following commands:
+
+$ sudo apt-get update
+$ sudo apt-get install xauth
+$ apt-get install firefox-esr-l10n-en-gb
+
+After this, I was able to begin the lab.
+
+SSH Setup and Use in Applications
+---------------------------------
+To start this lab, I ran the first 2 commands:
+
+$ dpkg --get-selections | grep openssh
+$	sudo apt-get install openssh-server
+$	sudo apt-get install openssh-client
+
+This made sure both the server and client were installed. I then generated the
+public and private keys.
+
+Server
+------
+$ ssh-keygen
+
+When prompted to enter a file, I didn't change the default location and I just
+pressed Enter. I set the passphrase and received the following key randomart:
+
+The key's randomart image is:
++---[RSA 2048]----+
+|         .o..    |
+|         . .     |
+|      . o   . o  |
+|       o o   +   |
+|        S     . .|
+|       .     . oo|
+|            E +.=|
+|             +.=o|
+|              =**|
++-----------------+
+
+I then made a user with the following command:
+
+$ sudo useradd -d /home/homedir -m Miao
+$ sudo passwd Miao
+
+I then set my password and waited for Ashley Miao to perform the Client steps.
+Once she logged into my host, she ran an echo command and pipepined the output
+into a file called am.txt. On my side, I ran the ls command and saw that the
+only file within the directory was am.txt. When running the who command, I was
+able to see that Ashley was on the server. We originally had an issue with
+xterm and the following command:
+
+$ xterm
+-sh: 1: xterm: not found
+
+When we ran the following commands:
+
+$ apk get-install xvfb
+$ apk get-install xterm
+
+Which still did not fix the issue. After checking Piazza we read a post that
+specified that we needed to reset our boards. This fixed the issue and all
+commands opened their own shell window.
+
+Client
+------
+Ashley and I then swapped roles and she created credentials for me to log onto
+her server with. I copied the public key to the server using the following
+commands:
+
+$ ssh-copy-id -i Miyahara@192.168.43.22
+$ ssh-add
+
+Next I could log into her server using the following command.
+
+$	ssh Miyahara@192.168.43.22
+$	ssh -X Miyahara@192.168.43.22
+
+When using the -X variant I was able to run xterm, gedit, and firefox without
+an issue this time. I also ran an echo command and pipelined its contents into
+rm.txt. When Ashley ran the ls command, she could see rm.txt, and when she ran
+the who command, she was able to see me.

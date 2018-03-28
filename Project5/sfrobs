@@ -1,0 +1,35 @@
+#!/bin/bash
+
+#Ryan Miyahara
+#UCID: 804585999
+
+coded="" #Holds normal chars
+uncoded="" #Holds frobnicated chars
+if [ "$1" == "-f" ]
+then
+    f=1
+else
+    f=0
+fi
+for i in {0..255}
+do
+    z=`printf "%03o" $i`
+    coded=$coded"\\"$z
+    w=$((i^42))
+    w=`printf "%03o" $w`
+    uncoded=$uncoded"\\"$w
+done
+#printf "$coded"
+#printf "\n"
+#printf "$uncoded"
+if [ $f == "1" ]
+then
+    tr $coded $uncoded |
+    tr '[:upper:]' '[:lower:]' |
+    sort |
+    tr $uncoded $coded
+else
+    tr $coded $uncoded |
+    sort |
+    tr $uncoded $coded
+fi

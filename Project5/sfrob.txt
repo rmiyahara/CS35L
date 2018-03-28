@@ -1,0 +1,111 @@
+Ryan Miyahara
+UCID: 804585999
+
+To compare sfrob and sfrobu, I used 3 different inputs. The first had short
+input and had 2 comparisons. The next had 17 comparisons (the example from
+Project 4). The last was a huge file made by repeating the medium input file
+over 1000 times. By creating a comparing counter and printing it during each
+comparison, I found that the large input had 570928 comparisons. When using the
+time commands, I received the following outputs:
+
+Short Input
+-----------
+sfrob
+real    0m0.002s
+user    0m0.000s
+sys     0m0.001s
+
+sfrobu
+real    0m0.003s
+user    0m0.002s
+sys     0m0.000s
+
+sfrobu -f
+---------
+real    0m0.006s
+user    0m0.002s
+sys     0m0.005s
+
+sfrobs
+------
+real    0m0.323s
+user    0m0.224s
+sys     0m0.136s
+
+
+sfrobs -f
+real    0m0.319s
+user    0m0.207s
+sys     0m0.154s
+
+
+Medium Input
+------------
+sfrob
+real    0m0.002s
+user    0m0.000s
+sys     0m0.001s
+
+sfrobu
+real    0m0.002s
+user    0m0.000s
+sys     0m0.002s
+
+sfrobu -f
+---------
+real    0m0.011s
+user    0m0.000s
+sys     0m0.003s
+
+sfrobs
+------
+real    0m0.346s
+user    0m0.250s
+sys     0m0.139s
+
+sfrobs -f
+real    0m0.347s
+user    0m0.265s
+sys     0m0.129s
+
+
+Long Input
+----------
+sfrob
+real    0m4.380s
+user    0m0.213s
+sys     0m0.673s
+
+sfrobu
+real    0m4.411s
+user    0m0.250s
+sys     0m0.827s
+
+sfrobu -f
+---------
+real    0m7.910s
+user    0m0.280s
+sys     0m0.837s
+
+sfrobs
+------
+real    0m0.370s
+user    0m0.283s
+sys     0m0.126s
+
+sfrobs -f
+---------
+real    0m0.404s
+user    0m0.306s
+sys     0m0.146s
+
+
+As we can see, the longer the input becomes, the longer sfrobu takes compared
+to sfrob. This is due to sfrobu using system calls rather than buffered I/O.
+With the others, we can see that sfrobs and sfrobs -f is a constant time unlike
+all the others. This could be due to the fact that it is a shell script rather
+than a C program. The amount of system calls must be constant to maintain this
+constant time function. The flagged version of sfrobu always takes
+significantly longer than its none flagged counterpart. For all programs, the
+longer the input given, the further the time difference becomes. This is due
+tto a proportional amount of system calls being made to the larger input.

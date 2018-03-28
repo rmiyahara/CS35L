@@ -1,0 +1,184 @@
+#Ryan Miyahara
+#UCID: 804585999
+
+Setting Up
+To begin this lab, I created a directory in my main directory called Project3:
+$ mkdir Project3
+$ cd Project3
+
+Lab
+1) I downloaded Coreutils 7.6 on my own machine and copied it into my Project3
+directory.
+
+2) Next, I unzipped coreutils-7.6.tar.gz using the following command:
+$ tar -xzvf coreutils-7.6.tar.gz
+This created a new directory in my Project3 directory. I moved into this and
+used the ls command to examine its contents. I made a temp directory (for step
+2) called tempbin. I then used emacs to read theREADME and INSTALL files. The
+INSTALL file gave me the instructions, "./configure; make; make install".
+$ ./configure
+This took a while to execute (around 1 minute), but overall had no issues.
+$ make
+The make command also took about a minute to execute.
+$ make install
+This command gave me an error. It gave me multiple "Error 1" and "Error 2"
+messages. According to the error messages, this is a Read-only file system.
+After reading further into the INSTALL file, I realized the file was installing
+to my environmental variable PATH. As step 2 states, I want this to be
+installed just into my tempbin directory. Under the "Optional Features"
+section, if I add --program-prefix=PREFIX to the configure building, I can
+change the path of the install. I then used the following command:
+$ ./ configure --program-prefix=~/Project3/coreutils-7.6/tempbin
+This took a while again, but when it finished, I used the same commands as
+before.
+$ make
+$ make install
+This was incorrect so I tried the following command instead.
+$ ./configure --prefix="~/Project3/coreutils-7.6/tempbin"
+This gave me an error saying I needed an absolute path, so I used the pwd
+command in my tempbin directory to obtain my absolute path. I then put it into
+my command and ran the following:
+$ ./configure --prefix="/u/ce/ugrad/miyahara/Project3/coreutils-7.6/tempbin"
+$ make
+$ make install
+This time, these commands worked and I received no error messages.
+
+3) First, I used the following command to change my locale:
+$ export LC_ALL='en_US.UTF-8'
+I then ran the following command:
+$ ./tempbin/bin/ls -l
+To reproduce the results. Here is a sample of the output.
+-rw-r--r--  1 miyahara ceugrad   80541 2008-09-18 00:19 ABOUT-NLS
+As you can see, the bug has produced itself by formatting the code incorrectly.
+
+4) Next, I needed to apply Bradey's patch. I did this by first getting the
+patch from the site using wget:
+$ wget http://lists.gnu.org/archive/html/bug-coreutils/2009-09/msg00410.html
+I then used emacs on "msg00410.html" to remove the whole page, aside from the
+patch. Next, I renamed the page:
+$ mv msg00410.html bradypatch.diff
+I then read the man patch page to understand the formatting of the command.
+I tried:
+$ patch -p1 < bradypatch.diff
+This gave me the following error:
+patching file src/ls.c
+Hunk #1 FAILED at 2014.
+Hunk #2 FAILED at 2030.
+2 out of 2 hunks FAILED -- saving rejects to file src/ls.c.rej
+After reading Piazza, I decided to look at the patch in vim instead. After
+trying multiple options, I noticed I was getting a "No space left on device"
+error. I decided to restart on the lnxsrv07 server instead.
+
+5) After this switch, I made the patch in vim and ran it using the following
+command:
+$ patch -p1 < bradeypatch.diff
+This command is used to make the replacements specified in the patch. The -p1
+flag means to ignore the first '/' in the address and the patch name is what I
+named the patch we had to make. It asked me which file I wanted to patch so I
+wrote:
+./src/ls.c
+$ make
+I ran make after to recompile everything now that the changes had been made.
+
+6) The patch succeeded and I ran the following command:
+$ ./src/ls -l
+A sample of the output is below:
+-rw-r--r--  1 miyahara ceugrad   80541 Sep 18  2008 ABOUT-NLS
+-rw-r--r--  1 miyahara ceugrad   47272 Sep 10  2009 aclocal.m4
+-rw-r--r--  1 miyahara ceugrad    3571 Sep  1  2009 AUTHORS
+-rwxr-xr-x  1 miyahara ceugrad   23005 Sep  1  2009 bootstrap
+-rw-r--r--  1 miyahara ceugrad    5641 Sep 10  2009 bootstrap.conf
+-rw-r--r--  1 miyahara ceugrad    1130 Feb  1 20:05 bradeypatch.diff
+drwxr-xr-x  2 miyahara ceugrad    4096 Sep 10  2009 build-aux
+-rw-r--r--  1 miyahara ceugrad    7744 Sep 10  2009 cfg.mk
+-rw-r--r--  1 miyahara ceugrad  310286 Sep 10  2009 ChangeLog
+-rw-r--r--  1 miyahara ceugrad  448879 Sep  1  2009 ChangeLog-2005
+-rw-r--r--  1 miyahara ceugrad  153390 Sep  1  2009 ChangeLog-2006
+-rw-r--r--  1 miyahara ceugrad  158644 Sep  1  2009 ChangeLog-2007
+-rw-r--r--  1 miyahara ceugrad   13716 Sep  1  2009 ChangeLog-2008
+-rw-r--r--  1 miyahara ceugrad 1541085 Feb  1 19:48 config.log
+-rwxr-xr-x  1 miyahara ceugrad   77518 Feb  1 19:48 config.status
+-rwxr-xr-x  1 miyahara ceugrad 1179944 Sep 10  2009 configure
+-rw-r--r--  1 miyahara ceugrad   15617 Sep 10  2009 configure.ac
+-rw-r--r--  1 miyahara ceugrad   35147 Sep  1  2009 COPYING
+-rw-r--r--  1 miyahara ceugrad    4838 Sep  1  2009 dist-check.mk
+drwxr-xr-x  2 miyahara ceugrad    4096 Feb  1 19:48 doc
+drwxr-xr-x  3 miyahara ceugrad    4096 Sep 10  2009 gl
+drwxr-xr-x  5 miyahara ceugrad   20480 Feb  1 19:48 gnulib-tests
+-rw-r--r--  1 miyahara ceugrad    4702 Mar 15  2009 GNUmakefile
+-rw-r--r--  1 miyahara ceugrad   15513 Aug 30  2009 INSTALL
+drwxr-xr-x  7 miyahara ceugrad   61440 Feb  1 19:49 lib
+drwxr-xr-x  2 miyahara ceugrad   28672 Sep 10  2009 m4
+-rw-r--r--  1 miyahara ceugrad   28788 Sep  8  2009 maint.mk
+-rw-r--r--  1 miyahara ceugrad   56682 Feb  1 19:48 Makefile
+-rw-r--r--  1 miyahara ceugrad    4619 Sep  1  2009 Makefile.am
+-rw-r--r--  1 miyahara ceugrad   59635 Sep 10  2009 Makefile.in
+drwxr-xr-x  2 miyahara ceugrad   16384 Feb  1 20:06 man
+-rw-r--r--  1 miyahara ceugrad  110479 Sep 10  2009 NEWS
+drwxr-xr-x  5 miyahara ceugrad    4096 Sep 10  2009 old
+drwxr-xr-x  2 miyahara ceugrad    8192 Feb  1 19:48 po
+-rw-r--r--  1 miyahara ceugrad   10637 Sep  1  2009 README
+drwxr-xr-x  3 miyahara ceugrad   28672 Feb  1 20:06 src
+drwxr-xr-x  5 miyahara ceugrad    4096 Feb  1 19:50 tempbin
+drwxr-xr-x 22 miyahara ceugrad    4096 Feb  1 19:48 tests
+-rw-r--r--  1 miyahara ceugrad   34903 Sep 10  2009 THANKS
+-rw-r--r--  1 miyahara ceugrad    1678 Sep 10  2009 THANKS-to-translators
+-rw-r--r--  1 miyahara ceugrad     121 Sep  1  2009 THANKStt.in
+-rw-r--r--  1 miyahara ceugrad    7658 Sep  1  2009 TODO
+As you can see, the date is formatted correctly. Running
+$ ./tempbin/bin/ls -l
+gives the following output:
+-rw-r--r--  1 miyahara ceugrad   80541 2008-09-18 00:19 ABOUT-NLS
+-rw-r--r--  1 miyahara ceugrad   47272 2009-09-10 22:56 aclocal.m4
+-rw-r--r--  1 miyahara ceugrad    3571 2009-09-01 04:01 AUTHORS
+-rwxr-xr-x  1 miyahara ceugrad   23005 2009-09-01 04:01 bootstrap
+-rw-r--r--  1 miyahara ceugrad    5641 2009-09-10 22:52 bootstrap.conf
+-rw-r--r--  1 miyahara ceugrad    1130 2018-02-01 20:05 bradeypatch.diff
+drwxr-xr-x  2 miyahara ceugrad    4096 2009-09-10 23:15 build-aux
+-rw-r--r--  1 miyahara ceugrad    7744 2009-09-10 11:29 cfg.mk
+-rw-r--r--  1 miyahara ceugrad  310286 2009-09-10 23:15 ChangeLog
+-rw-r--r--  1 miyahara ceugrad  448879 2009-09-01 04:01 ChangeLog-2005
+-rw-r--r--  1 miyahara ceugrad  153390 2009-09-01 04:01 ChangeLog-2006
+-rw-r--r--  1 miyahara ceugrad  158644 2009-09-01 04:01 ChangeLog-2007
+-rw-r--r--  1 miyahara ceugrad   13716 2009-09-01 04:01 ChangeLog-2008
+-rw-r--r--  1 miyahara ceugrad 1541085 2018-02-01 19:48 config.log
+-rwxr-xr-x  1 miyahara ceugrad   77518 2018-02-01 19:48 config.status
+-rwxr-xr-x  1 miyahara ceugrad 1179944 2009-09-10 22:56 configure
+-rw-r--r--  1 miyahara ceugrad   15617 2009-09-10 22:52 configure.ac
+-rw-r--r--  1 miyahara ceugrad   35147 2009-09-01 04:01 COPYING
+-rw-r--r--  1 miyahara ceugrad    4838 2009-09-01 04:01 dist-check.mk
+drwxr-xr-x  2 miyahara ceugrad    4096 2018-02-01 19:48 doc
+drwxr-xr-x  3 miyahara ceugrad    4096 2009-09-10 23:15 gl
+drwxr-xr-x  5 miyahara ceugrad   20480 2018-02-01 19:48 gnulib-tests
+-rw-r--r--  1 miyahara ceugrad    4702 2009-03-15 00:11 GNUmakefile
+-rw-r--r--  1 miyahara ceugrad   15513 2009-08-30 01:52 INSTALL
+drwxr-xr-x  7 miyahara ceugrad   61440 2018-02-01 19:49 lib
+drwxr-xr-x  2 miyahara ceugrad   28672 2009-09-10 23:15 m4
+-rw-r--r--  1 miyahara ceugrad   28788 2009-09-08 00:47 maint.mk
+-rw-r--r--  1 miyahara ceugrad   56682 2018-02-01 19:48 Makefile
+-rw-r--r--  1 miyahara ceugrad    4619 2009-09-01 04:01 Makefile.am
+-rw-r--r--  1 miyahara ceugrad   59635 2009-09-10 22:56 Makefile.in
+drwxr-xr-x  2 miyahara ceugrad   16384 2018-02-01 20:06 man
+-rw-r--r--  1 miyahara ceugrad  110479 2009-09-10 22:53 NEWS
+drwxr-xr-x  5 miyahara ceugrad    4096 2009-09-10 23:15 old
+drwxr-xr-x  2 miyahara ceugrad    8192 2018-02-01 19:48 po
+-rw-r--r--  1 miyahara ceugrad   10637 2009-09-01 04:01 README
+drwxr-xr-x  3 miyahara ceugrad   28672 2018-02-01 20:06 src
+drwxr-xr-x  5 miyahara ceugrad    4096 2018-02-01 19:50 tempbin
+drwxr-xr-x 22 miyahara ceugrad    4096 2018-02-01 19:48 tests
+-rw-r--r--  1 miyahara ceugrad   34903 2009-09-10 10:33 THANKS
+-rw-r--r--  1 miyahara ceugrad    1678 2009-09-10 23:06 THANKS-to-translators
+-rw-r--r--  1 miyahara ceugrad     121 2009-09-01 04:01 THANKStt.in
+-rw-r--r--  1 miyahara ceugrad    7658 2009-09-01 04:01 TODO
+The output from tempbin shows that the patch worked.
+I then needed to test for a new and an old file. To make sure I was using
+correct files, I went into the src directory and used the following commands:
+$ touch test_new
+$ touch -t "199706151111"
+The second command made the time stamp June 15, 1997 at 11:11. When running,
+$ ./src/ls -l
+I received this output for those files:
+-rw-r--r-- 1 miyahara ceugrad      0 Feb  1 20:22  test_new
+-rw-r--r-- 1 miyahara ceugrad      0 Jun 15  1997  test_old
+Files that are over a year old have their time stamp replaced with the date
+the file was last modified.

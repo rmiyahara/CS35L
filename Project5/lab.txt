@@ -1,0 +1,160 @@
+Ryan Miyahara
+UCID: 804585999
+
+Setting Up
+----------
+First, I began by creating a directory in my home directory labeled "Project5".
+I then created the files which I would create for this lab.
+
+$ mkdir Project5
+$ touch tr2b.c
+$ touch tr2u.c
+
+I then used emacs to begin creating tr2b.c.
+
+Buffered I/O
+------------
+My first thing I did in this program was checking to see if the number of
+arguments was correct, then checking to see if the "from" and "to" strings
+were of the same length, and finally, checking for duplicate bytes. This last
+step moved all the bytes in each string to another c string, stopping if a
+duplicate was found. I then tested this by writing a statement that prints the
+"from" and "to" strings. I input strings of different length, the same length,
+no repeating bytes, repeating bytes, and empty strings. All of these worked
+fine with the correct error messages displaying.
+
+Next, I needed to do the transliteration of each byte. Since this is the
+buffered I/O version, I repeatedly took in using "getchar()", checking if it
+existed in "from", and if it did, replacing it with the corresponding position
+in "to". I then printed the char using "putchar()". If a match isn't found, I
+used "putchar()" to print the original char.
+
+Unbuffered I/O
+--------------
+For this version of the program, I copy and pasted my tr2b.c, editing the
+lines of code which used the "getchar()" and "putchar()" functions. Below are
+the functions which I would replace them with:
+
+ssize_t read(int fildes, void *buf, size_t nbyte);
+ssize_t write(int fildes, const void *buf, size_t nbyte);
+
+I knew that fildes should be set to 0 for stdin, and 1 for stdout. In both
+cases, nbyte should be set to 1 in order to only read and write 1 byte at a
+time. The buf would be a bit trickier. I tried creating a c string of size 2
+for this. The first byte would be what is read in, and the second would be the
+ending zero byte. Since I wouldn't ever search through the c string, I decided
+a size of 1 would suffice. This buffer would hold the first char read in, and
+if a match was found in the "from" string, it would be replaced with the
+transliteration from the "to" string. If a match wasn't found, the buffer
+would hold onto the original read in char. I tested this approach using the
+same method as the buffered version which ended up working in the same way.
+
+strace
+------
+To begin step 3 of the lab, I first looked at the man page for strace since I
+wasn't exactly sure of its behavior. It told me that using the -o flag would
+allow me to write to a file which seems extremely useful. I also read that the
+-c flag would allow me to count the number of system calls from the program I
+would be looking at. Now that I had an understanding of how strace worked, I
+needed to create a file with at least 5,000,000 bytes. To do this I used the
+head command as suggested by the TA slides:
+
+$ head --bytes=5000000 /dev/urandom > output.txt
+$ ls -l
+
+I then used the ls -l command to check the size of output.txt.
+
+-rw-r--r-- 1 miyahara ceugrad 5000000 Feb 17 16:17 output.txt
+
+The line above showed me that output.txt did in fact have 5000000 bytes. Next,
+I compiled both tr2u.c and tr2b.c and gave them random to and from strings,
+making sure they were the same in both cases and followed the rules
+(no duplicates, same length). Below were my following commands:
+
+$ touch strace_rec_buf.txt
+$ touch strace_rec_unbuf.txt
+$ gcc tr2b.c -o tr2b
+$ gcc tr2u.c -o tr2u
+$ strace -o strace_rec_buf.txt -c cat output.txt | ./tr2b "qwertyui" "asdfghjk"
+$ strace -o strace_rec_unbuf.txt -c cat output.txt | ./tr2u "qwertyui" "asdfghj
+k"
+
+The unbuffered version of the file ran many times longer than the buffered
+version. In fact, while the buffered version ran for several seconds, the
+unbuffered version ran for several minutes. After waiting for both to finish,
+I used emacs to open each file with the amount of system calls. Below are the
+results. Both times the program ran, a bunch of characters were printed onto my
+screen.
+
+Buffered Results
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 97.72    0.055104           3     19981           write
+  2.28    0.001284           2       613           read
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         4           fstat
+  0.00    0.000000           0         9           mmap
+  0.00    0.000000           0         4           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         4           brk
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.056388                 20623         1 total
+
+Unbuffered Results
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 58.08   25.587393           5   5000000           write
+ 41.92   18.466542           4   5000002           read
+  0.00    0.000168          24         7           mmap
+  0.00    0.000145          36         4           mprotect
+  0.00    0.000096          24         4           brk
+  0.00    0.000087          44         2           open
+  0.00    0.000043          43         1         1 access
+  0.00    0.000042          21         2           fstat
+  0.00    0.000037          19         2           close
+  0.00    0.000029          29         1           munmap
+  0.00    0.000026          26         1           execve
+  0.00    0.000024          24         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00   44.054632              10000027         1 total
+
+As you can see, the unbuffered version had many more system calls which slowed
+down the execution time greatly. I then ran the commands again, this time
+printing to terminal:
+
+$ strace -c cat output.txt | ./tr2b "qwertyui" "asdfghjk"
+$ strace -c cat output.txt | ./tr2u "qwertyui" "asdfghjk"
+
+These commands ran exactly the same as their file output counterparts.
+
+Time
+----
+For the last portion of the lab, I had to use the time command to measure the
+performance of each program. Below are the commands I used to measure this:
+
+$ time cat output.txt | ./tr2b "qwertyui" "asdfghjk" >time_buf.txt
+$ time cat output.txt | ./tr2u "qwertyui" "asdfghjk" >time_unbuf.txt
+
+I used the '>' to keep the terminal clean since the last step made the terminal
+unreadable. Below are the following results:
+
+Buffered Version
+real    0m0.448s
+user    0m0.371s
+sys     0m0.034s
+
+Unbuffered Version
+real    0m9.884s
+user    0m1.590s
+sys     0m8.266s
+
+According to wall clock speed, the buffered version is 22.1 times faster than
+its unbuffered counterpart. According to CPU time, the buffered version is
+4.286 times faster. And according to CPU time for system calls, the buffered
+version is 243 times faster. From all this data, we can conclude that system
+calls are very costly and create a very notable amount of overhead in our
+program's execution.

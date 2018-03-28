@@ -1,0 +1,72 @@
+Ryan Miyahara
+UCID: 804585999
+
+Step 1
+------
+I created hw9.txt in my "Project9" directory:
+
+$ touch hw9.txt
+
+Step 2
+------
+First, I had to checkout v3.0 of the Diffutils just like the lab portion
+of this assignment. The only difference is I had to check out as a new
+branch named "quote". To find out how to do this I used git checkout's man
+page. The man page informed me that I would need to use the -b flag after
+the original branch's name, and the new name following that. I then used
+the following command:
+
+$ cp -r ~eggert/src/gnu/diffutils diffutils
+$ cd diffutils
+$ git checkout 'v3.0' -b 'quote'
+
+Step 3
+------
+Next, I applied the changes from the lab using the quote-3.0-patch.txt
+patch I made.
+
+$ cd ..
+$ cp quote-3.0-patch.txt diffutils/quote-3.0-patch.txt
+$ cd diffutils
+$ patch -p1 < quote-3.0-patch.txt
+
+Step 4
+------
+I then learned about the add-change-log-entry-other-window Emacs function
+through the link in the specs. Apparently, this function adds to the change
+log for this current file.
+
+Step 5
+------
+With the knowledge from the previous step. I made a ChangeLog entry from
+the quote-3.0-patch. I did this by editing each file that was modified
+(I used git status to check this) and using the add-change-log-entry-other-
+window function to make ChageLog.
+
+Step 6
+------
+For this step, I had to commit the changes made by the patch. I knew to use
+the git commit command, but I looked at its man page first. The flags that
+are important to this step are the -a flag (signals to stage all modified
+files) and the -F flag (so we can signal ChangeLog).
+
+$ cp src/ChangeLog ChangeLog
+$ git commit -aF ChangeLog
+
+Step 7
+------
+Next, I used the git format-patch command to create a new patch. I put this
+output into a file titled "formatted-patch.txt". From the lab, I remembered
+to use the -1 flag to specify only this commit. I also remembered to specify
+--stdout
+
+$ git format-patch -1 --stdout >formatted-patch.txt
+
+Using Emacs, I found the file contained the differences as well as the
+ChangeLog entries.
+
+Step 8
+------
+For step 8, I chose Ashley Miao as my partner to verify my patch.
+Name: Ashley Miao
+UCID: 

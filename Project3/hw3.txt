@@ -1,0 +1,46 @@
+#Ryan Miyahara
+#UCID: 804585999
+
+Q1) Bradey's patch removed the line "case_long_iso_time_style:" because it is
+removed from the loop in the function. By removing the line from the for loop
+in the third part of the patch, the function is no longer called, making the
+case useless. Technically, you do not have to remove this line, but it keeps
+your code concise by doing so.
+
+Q2) If the Coreutils patch is used over the default one, people reading the ls
+lines may be confused if they do not understand English formatting. If this
+happens, months and days could be easily confused and could affect development.
+
+Q3) When the script is invoked with an empty file, I recieve the following
+output:
+
+Traceback (most recent call last):
+  File "./randline.py", line 70, in <module>
+    main()
+  File "./randline.py", line 64, in main
+    sys.stdout.write(generator.chooseline())
+  File "./randline.py", line 34, in chooseline
+    return random.choice(self.lines)
+  File "/usr/lib64/python2.7/random.py", line 274, in choice
+    return seq[int(self.random() * len(seq))]  # raises IndexError if seq is
+    empty
+IndexError: list index out of range
+
+This makes sense because the chooseline function attempts to pick a random line
+between 0 and the total amount of lines. Since there are no lines, any number
+that is chosen would be out of the range of the file. Therefore, we receive an
+IndexError.
+
+Q4) When compiled using Python 3,
+$ python3 randline.py -n3 hw3.txt
+I received the following error:
+
+File "randline.py", line 65
+    except IOError as (errno, strerror):
+                      ^
+SyntaxError: invalid syntax
+
+This error happens because Python 3 no longer supports automatic tuple
+unpacking. Automatic tuple unpacking is a feature that lets the user pass
+arguments, like (arg1, arg2), as one single argument. The removal of this
+feature creates the syntax error shown in the output.
