@@ -1,0 +1,128 @@
+Exercise 1.0
+$ wget web.cs.ucla.edu/classes/winter18/cs35L/assign/assign1.html
+$ cp assign1.html exer1.html
+$ cp assign1.html exer2.html
+$ cp assign1.html exer3.html
+
+Exercise 1.1
+1) $ emacs exer1.html
+2) C-s H T M L Enter
+3) C-s s c a v e n g e r M-b
+4) C-s s e l f - r e f e r e n t i a l M-b
+5) C-s a r r o w M-b
+6) C-e
+7) C-a
+8) The commands used above from the lecture slides reduces the number of
+keystrokes.
+9) The arrow keys were not used.
+10) C-x C-c
+
+Exercise 1.2
+1) $ emacs exer2.html
+2) C-s < ! - Enter C-a C-SP C-e Backspace
+3) C-s D E Enter C-a C-SP C-e Backspace
+4) C-s h t t p s : / / e n / Enter C-p C-a C-SP C-n C-n C-e Backspace
+5) C-s < ! Enter C-b C-b C-SP C-s > Enter Backspace
+C-s < ! Enter C-a C-SP C-n C-n C-n C-e Backspace
+C-s < ! Enter C-a C-SP C-e Backspace
+C-x C-s C-x C-c
+$ diff -u exer1.html exer2.html >exer2.diff
+
+Exercise 1.3
+1) $ emacs exer3.html
+2) C-s A s Enter M-f C-f 5
+C-s A Enter M-f C-f 5
+3) C-s U T Enter C-f C-SP M-f Backspace S - A S C I I
+4) C-s </o Enter C-p Enter
+5) C-x C-s C-x C-c
+$ diff -u exer1.html exer3.html >exer3.diff
+
+Exercise 1.4
+1) $ cat exer2.html exer2.diff >exer4.html
+2) $ emacs exer4.html
+3) M-> C-p C-f C-SP C-e C-w M-v M-v M-v C-s h t m l Enter C-n C-y
+4) M-> M-v C-s < ! C-a C-SP C-e C-w M-v M-v M-v M-v C-s < / p > Enter C-n C-y
+M-> M-v C-s l i n e s Enter C-SP C-s > Enter C-w M-v M-v M-v M-v M-v C-s l i
+n e s Enter C-y
+M-> M-v C-s < ! Enter C-a C-SP c-s > Enter C-w M-< C-s S u b m i t Enter C-n
+C-n C-y
+M-> M-v M-v C-s < ! Enter C-a C-SP C-e C-w M-< C-s H o m e w o r k C-n C-n
+C-y
+M-> M-v M-v M-v C-s < ! Enter C-a C-SP C-e C-w M-< C-s L a b Enter C-n C-n
+C-y
+5) M-> M-v M-v M-v C-s - - e Enter C-a C-SP M-> Backspace
+6) C-x u
+7) - - > M-v M-v M-v < ! - -
+8) C-s < o l > Enter Enter Enter Enter Enter Enter Enter
+There are 7 instances of the term <ol>
+M-< C-s < o l > M-% < o L > Enter y y y y y y y
+
+Exercise 1.5
+1) M-x make-directory Enter j u n k Enter
+2) C-f j u n k / h e l l o . c Enter
+F10 Down Enter Backspace Backspace Backspace Backspace Backspace e x e r 1 . h
+t m l Enter C-s # i n c Enter C-b C-b C-b C-SP C-s } C-s Enter M-w C-x b h e
+l l o . c Enter C-y
+C-s & l t ; M-% < Enter C-s Enter
+C-s & g t ; M-% > Enter C-s Enter
+C-s & q u o t ; M-% "
+3) M-x Backspace Backspace Backspace Backspace Backspace Backspace Backspace
+Backspace g c c SP - o SP h e l l o SP h e l l o . c
+4) M-x Backspace Backspace Backspace Backspace Backspace Backspace Backspace
+Backspace . / h e l l o
+C-x 0 Enter
+C-x C-w h e l l o - o u t Enter
+C-x C-c
+5) $ emacs key1.txt
+F10 Down Enter h e l l o - o u t Enter
+C-SP M-> M-w
+C-x b Enter M-> C-y
+
+-*- mode: compilation; default-directory: "~/junk/" -*-
+Compilation started at Sat Jan 13 22:00:50
+
+./hello
+#include <stdio.h>
+int
+main (void)
+{
+  char n = '\n';
+  char b = '\\';
+  char q = '"';
+  char const *p = "#include <stdio.h>%cint%cmain (void)%c{%c  char n = '%cn';%c  char b = '%c%c';%c  char q = '%c';%c  char const *p = %c%s%c;%c  printf (p, n, n, n, n, b, n, b, b, n, q, n, q, p, q, n, n, n, n);%c  return 0;%c}%c";
+  printf (p, n, n, n, n, b, n, b, b, n, q, n, q, p, q, n, n, n, n);
+  return 0;
+}
+
+Compilation finished at Sat Jan 13 22:00:50
+
+Exercise 1.6
+1) $ emacs
+2) C-s O p e n SP * s Enter Enter
+( r a n d o m ) C-j
+3) ( s e t q SP x SP ( r a n d o m ) ) C-j
+( s e t q SP y SP ( r a n d o m ) ) C-j
+4) x = -1738682042933629261
+y = 2291786245908976350
+C- j
+Given answer: 581217729584782293
+5) M-: ( - SP x SP y ) Enter
+The given answer is the same incorrect answer as the previous command.
+6) The random numbers aren't truly random. In the Random Numbers page in emacs,
+((elips)Top > Numbers > Random Numbers) the page tells us the random numbers
+are given in a "deterministic fashion" meaning the algorithm follows some set
+of rules. This gives us "pseudo-random numbers" instead of true random numbers.
+7) By looking at the random numbers, we know they are stored as the long data
+type meaning they are stored in 64 bits. Since we went past the minimum value
+for long in number 4, we know the answer is also stored as a long. This means
+we are looking for the probability that the difference of 2 numbers is either
+smaller than (-2^64) or bigger than (2^64 - 1). I then made an x y graph where
+the range of x is [lmin, lmax] and the range of y is [lmin, lmax] where lmin is
+the minimum value for a long and lmax is the maximum value for a long. I then
+drew a line between ymax to xmin and another from ymin to xmax. The outside
+corners represent overflow. I then found the area of these 2 triangles to be:
+lmin*lmax/2
+I then multiplied by 2 (overflow happens when signs are different) and divided
+by the total area:
+(lmin+ lmax)^2
+to get the answer of: 0.25.

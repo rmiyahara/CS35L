@@ -1,0 +1,128 @@
+1) According to the man man page, to print commands with a specific word, we
+use the following command:
+man -k printf
+where printf is replaced with the word we are searching for.
+
+2) The cp and wc commands have the following addresses:
+/usr/local/cs/bin/cp
+/usr/local/cs/bin/wc
+I used the "which <SHELL COMMAND>" command to "list the binary of each command.
+
+3) The only one character file is named '['. To find it I used the following
+command:
+$ find /usr/local/cs/bin -name '?' -executable
+According to the slides, I followed the 'find' command with the directory I
+wanted to search in. Then I used the name flag with a '?' to specify any file
+with one character. Lastly, I used the executable flag to specify the
+executable file type.
+
+4) The file is actually located at "/etc/alternatices/emacs". To find this, I
+used man and searched with the keywords symbolic link.
+$ man -k symbolic link
+This gave me a few commands, but the command to "read value of symbolic link"
+was the command "readlink". I then used the following command to get my result:
+$ readlink /usr/bin/emacs
+
+5) g: group
++: selected file mode bits added to existing file mode bits
+s: set user ID on execution
+g+s: Adds group on execution
+o: other users, not in the file group
+-: causes them to be removed
+x: execute
+o-x: Removes permission from other users, not in the file group
+To find these definitions I looked at the manual for chmod. (Command below)
+$ man chmod
+
+6) You would add the -mtime flag with the variable (n = -21). The command would
+look like this:
+$ find -mtime -21
+I found this flag and its variable definition using 'man find' under the "Test"
+category. The '-' before the 21 represents anything below n. The value for n is
+the number of days.
+
+7) The following directories have been modified in the past 3 weeks:
+.
+./.cache/abrt
+./.emacs.d
+./.emacs.d/auto-save-list
+./junk
+To find this I used the following command:
+$ find -mtime -21 -type d
+Where d represents a directory under the flag -type.
+
+8) Find is located at the following address (answer found using "which find"):
+/usr/bin/find
+Next, I used the find command and searched for symbolic links by using 'l'
+under the -type flag. This gave me a large list of symbolic links. To find the
+number of links, I added "| wc -l" to my command. The -l flag has the wc
+command print the number of lines in the search. I found this out by using:
+man wc
+My whole command was as follows:
+$ find /usr/bin -type l | wc -l
+
+9) First, I used the cd command to put myself into the desired directory.
+$ cd /usr/lib
+Then, I checked "man ls" to search for ls flags. There, I found -l, -t, and -a
+to be useful. -l gave us the long listing (added time and date of last
+modified), -t sorted the files from newest to oldest, and -a shows hidden files
+(files starting with .). The oldest file is libgpg-error.so.0.10.0 which was
+modified on January 26, 2014. The ls command I used was:
+$ ls -lat
+
+10) I first used "man locale" and read its entire manual page. Under the "See
+Also" section, there were 2 new options, charmap and localedef. Looking at both
+of their man pages shoed that localedef provides locale with data by using
+charmap and input files. These create "usable locale functions".
+
+11) By launching Emacs, then using C-h and ?, I opened the manual for emacs.
+The manual told me using C-h followed by an 'a' would give me all commands with
+a certain key phrase so I used the following list of commands:
+C-h a sort Enter
+This gave me the following commands:
+Buffer-menu-sort              M-x ... RET
+sort-columns                  M-x ... RET
+sort-fields                   M-x ... RET
+sort-lines                    M-x ... RET
+sort-numeric-fields           M-x ... RET
+sort-pages                    M-x ... RET
+sort-paragraphs               M-x ... RET
+sort-regexp-fields            M-x ... RET
+sort-regexp-fields            M-x ... RET
+tabulated-list-col-sort       M-x ... RET
+tabulated-list-sort           M-x ... RET
+
+12) First, I used the C-h and ? menu to search for a command that would give me
+the definition of command functions. By scrolling through the manual, I found
+'k' was the command I was looking for.
+C-M-a: runs the command at beginning of a defined function
+C-M-b: moves backwards over one balanced expression
+C-M-c: exit recursively
+C-M-d: move down on level of parentheses
+C-M-e: move forward to end of next defined function
+C-M-f: move forward over on balanced expression
+C-M-g: N/A
+C-M-h: set marker at end of defined function, then point to its beginning
+
+13) Just like in number 12, I used C-h k to find the manual page for C-g. The
+page told me that C-g immediately quits out of an Lisp execution.
+
+14) From the slides, I knew that "yank" referred to pasting copied or cut
+sections. By using C-h ?, I was able to find that 'f' would give me the
+definitions for specific functions. The C-h f yank Enter keystrokes gave me a
+more detailed definition of "reinserting the last stretch of killed text."
+
+15) The difference between the dired and ls -l is that ls does no include the
+first . and .. directories. I found this out by exporting the output of the
+ls -l command to a file called ls.txt in my home page/ The commands for this:
+$ cd /usr/bin
+$ ls -l >~/ls.txt
+Next, I went into the function command C-x d, as mentioned in the slides, and
+set the directory to /usr/bin. Then, I used M-< C-SP M-> M-w to copy the entire
+buffer. I then made a new file using F10, Enter ~/dired.txt. I then checked the
+differences between these 2 files using the diff command below:
+$ diff -u dired.txt ls.txt >check.txt
+This gave me a very long file and revealed ls had 2 less lines than dired.
+Since the file was so long I considered the difference must be at the
+beginning. By looking at the first 2 lines in Emacs I noticed dired contained
+the directories . and .. while ls did not.
