@@ -1,0 +1,524 @@
+
+Ryan Miyahara
+UCID: 804858999
+Set Up
+To start this lab, I created a working directory called "Project2" in my home
+directory. I ran the following command to obtain the web page:
+$ wget web.cs.ucla.edu/classes/winter18/cs35L/assign/assign2.html
+This gave me a file titled "assign2.html". Next, I used the sort command to get
+a copy of the sorted English words.
+$ sort /usr/share/dict/words>words
+The last portion of the command created a file called "words" and added the
+output of the command into the file. Next, I checked to see if I was in the
+standard C locale. I did this by running the following command:
+$ locale
+The output did not print "LC_CTYPE="C"" which meant I had to run the following
+command to switch my locale.
+$ export LC_ALL='C'
+Now I was ready to attempt the commands.
+
+Test Commands
+tr -c 'A-Za-z' '[\n*]'
+The -c command represents a complement of set1 which is 'A-Za-z' in this case.
+This means, everything that is not a letter, is replaced with set2, a new line
+character. This shows in the output because each line is either a single word,
+or a blank line.
+
+tr -cs 'A-Za-z' '[\n*]'
+This command, and the rest, uses the -s flag as well as the compliment flag.
+According to the man page, the -s flag represents "--squeeze-repeats" which
+means for everything that is not an alphabetical letter, a single new line
+character replaces it. The -s flag makes sure only new line characters cannot
+be allowed in succession. The output displays this by having one word on each
+line.
+
+tr -cs 'A-Za-z' '[\n*]' | sort
+This command adds the sort command to the previous one. This command takes the
+output of the last command and sorts it alphabetically. This is shown in the
+output by having single words on each line, in alphabetical order.
+
+tr -cs 'A-Za-z' '[\n*]' | sort -u
+The addition made in this command is the -u flag to the sort command. According
+to the man page for sort, this flag represents "--unique" which means each word
+will not have a duplicate. This is displayed in the output of the command as
+each word only appears once.
+
+tr -cs 'A-Za-z' '[\n*]' | sort -u | comm - words
+This command adds the comm command with file2 being the words file we created
+earlier. This command will compare the output of the previous commands and
+compare it to our list of English words. The output is 3 separate columns where
+the left represents words unique to the output of the previous commands, the
+second represents the words unique to words, and the third represents words
+that are in both.
+
+tr -cs 'A-Za-z' '[\n*]' | sort -u | comm -23 - words
+The addition of -23 to the command turns off columns 2 and 3 which held words
+unique to words and words that were shared between the two files. This means,
+we are looking at a column of words only unique to the output of the previous
+commands. Which, in total, represents all words that are unique to
+assign2.html.
+
+Starting the Lab
+To prepare for the lab, I used wget to receive a copy of the awaiian
+dictionary.
+$ wget http://mauimapp.com/moolelo/hwnwdseng.htm
+Next I created my buildwords file in my working directory.
+$ touch buildwords
+I then used chmod to allow me to use the executable.
+$ cdmod +x buildwords
+The header of the file is used to denote a shell script and I commented the
+format of the "English to Hawaiian" for convenience.
+
+Lab Work
+I split this lab into 3 portions:
+1) Taking in all the Hawaiian words from page and remove formatting.
+2) Prepare all words so format matches the required specs.
+3) Fix formatting, sort, and remove duplicates. Export to hwords.
+
+To begin part 1, I first searched for "<tr>" or "<td> because all words are
+surrounded by these (Line 6). Next, I needed to remove all white space due to
+creating errors in finding the Hawaiian words. For this I used the sed command
+and searched for spaces (Line 7). After that, I knew I could delete everything
+from <tr> to </td>" since they were formatting or English words. Finding this
+command took me a while because I wasn't sure how to account for the English
+word within the formatting. I found that I could remove the "s" from the
+beginning of the command and add a comma to represent "From this to this". I
+figured this out by running the command over and over again with different
+input and observing its behavior (Line 8). I now had only Hawaiian words with
+formatting. I used lines 10 and 11 to remove the formatting surrounding my
+Hawaiian words.
+
+For part 2, I decided to implement formatting rules in the order the specs
+bring them up. First, I needed to set all upper case to lower case. I used the
+tr command and POSIX bracket expressions found in the slides (Line 13). Next, I
+removed the formatting surrounding accented characters using the same method as
+before (Line 14). After that, the backticks had to be switched for apostrophes
+which could be implemented with a simple tr command (Line 16). I then had to
+separate words. The method I used for this was to treat words with spaces as
+separate words. I then deleted the comma which followed certain words. I did
+this by replacing spaces with new line characters and deleting the trailing
+commas. Lastly, I had to remove all lines which did not contain a Hawaiian
+characters. At first, I tried a sed command or a tr command, but these deleted
+characters that were not Hawaiian rather than not displaying the entire line. I
+decided to go with a grep command as the slides did. My regular expression for
+this command looked like this:
+"^[pkmnwlhaeiou']*$"
+I used double quotes to not interfere with the ', a ^ to signify the beginning
+of a line, all the letters in brackets, a * to allow for multiple occurrences,
+and a $ to search to the end. This command took me a while because of the many
+rules this command had to follow.
+
+To finish this shell script, I deleted all empty lines. I used a tr command with
+the following regular expression:
+"^$"
+This represents a line where nothing is in the beginning and nothing is at the
+end. I implemented this with a tr command with the -d flag. I then sorted the
+list with sort -u to remove duplicates. I put this entire output into hwords.
+I then displayed hwords so the command at the end of the specs would work.
+
+
+Post Lab
+After thorough testing, my code outputs all Hawaiian words from the page
+without bugs.
+
+Below is the modified shell script to check for spelling:
+cat assign2.html | tr '[:upper:]' '[:lower:]' |  tr -cs 'A-Za-z' '[\n*]' | sort
+ -u | comm -23 - hwords
+
+To check for "misspelled" English words, I ran the following command:
+cat assign2.html | tr '[:upper:]' '[:lower:]' | tr -cs 'A-Za-z' '[\n*]' | sort
+-u | comm -23 - words | tr -d "^$" | wc -l
+This gave me 39 "misspelled" words in English on the assignment page.
+
+To check for "misspelled" Hawaiian words, I ran the following command:
+cat assign2.html | tr '[:upper:]' '[:lower:]' | tr -cs 'A-Za-z' '[\n*]' | sort
+-u | comm -23 - hwords | tr -d "^$" | wc -l
+This gave me a 405 "misspelled" words in Hawaiian on the assignment page.
+
+To check for words "misspelled" as English, but not as Hawaiian, I ran the
+"misspelled" English command and comm to hwords like below.
+cat assign2.html | tr '[:upper:]' '[:lower:]' | tr -cs 'A-Za-z' '[\n*]' | sort
+-u | comm -23 - words | tr -d "^$" | comm -12 - hwords
+In the last command, I used -12 to show only the words shared by the lists.
+This gave me the following words:
+halau
+lau
+wiki
+
+When checking for the other way around, I simply switched the order of the
+command as below:
+cat assign2.html | tr '[:upper:]' '[:lower:]' | tr -cs 'A-Za-z' '[\n*]' | sort
+-u | comm -23 - hwords | tr -d "^$" | comm -12 - words
+This gave me the following words:
+a
+able
+about
+above
+abovementioned
+accent
+address
+after
+afterwards
+against
+all
+also
+an
+and
+any
+apostrophe
+are
+argument
+arguments
+as
+ascii
+assign
+assignment
+assume
+assumption
+attempt
+automate
+awk
+b
+bar
+be
+before
+being
+body
+br
+briefly
+bug
+bugs
+but
+by
+c
+can
+capitalized
+carriage
+case
+cased
+cases
+cat
+change
+chap
+characters
+check
+checked
+checker
+checkers
+checking
+checks
+columns
+com
+comm
+command
+commands
+commas
+contain
+containing
+contains
+content
+contents
+convenience
+copy
+copying
+copyright
+count
+create
+crude
+cs
+d
+describe
+described
+detail
+dict
+dictionary
+did
+differs
+directories
+directory
+disk
+do
+doesn
+don
+down
+dtd
+duplicate
+duplicates
+each
+en
+english
+entries
+equiv
+equivalent
+equivalents
+error
+examine
+example
+examples
+exp
+export
+extract
+fetch
+file
+files
+find
+finds
+first
+fix
+following
+foo
+for
+formatted
+from
+generally
+give
+given
+gnu
+grave
+gt
+h
+hand
+handle
+happened
+hard
+has
+hawaiian
+head
+hint
+homework
+hosts
+how
+however
+hr
+id
+if
+ignore
+immediately
+implementation
+improperly
+in
+input
+into
+introductory
+is
+it
+its
+itself
+just
+k
+keep
+l
+lab
+laboratory
+language
+last
+later
+lc
+leading
+length
+less
+let
+letters
+lexicographically
+li
+like
+line
+link
+links
+list
+ln
+locale
+log
+lots
+lower
+lt
+m
+mail
+many
+may
+mentioned
+merely
+meta
+misspelled
+modify
+more
+multiple
+n
+name
+named
+names
+naming
+need
+no
+non
+not
+note
+notebook
+nothing
+number
+o
+obtain
+occurrence
+of
+on
+one
+only
+or
+ordinary
+org
+orthography
+other
+others
+output
+outputs
+p
+page
+particular
+paul
+people
+per
+performed
+please
+portable
+position
+pre
+prefer
+prepared
+previous
+problem
+problems
+project
+public
+pubs
+putting
+r
+rather
+re
+read
+readable
+reading
+record
+recursively
+regular
+reject
+remaining
+removing
+repair
+replace
+replaces
+report
+represent
+reproduce
+result
+resulting
+results
+returns
+right
+rules
+run
+runnable
+running
+s
+samp
+save
+script
+scripting
+see
+share
+shell
+should
+shown
+silently
+similarly
+simple
+since
+single
+so
+software
+some
+sort
+sorted
+sorting
+space
+spaces
+special
+spell
+spelling
+standard
+start
+steve
+strict
+subdirectories
+submit
+substitutions
+such
+supports
+suppose
+sure
+symbolic
+system
+systematic
+systematically
+t
+tables
+tag
+take
+takes
+test
+text
+than
+that
+the
+their
+them
+then
+there
+these
+they
+thing
+this
+title
+to
+tr
+traditional
+transcript
+treat
+true
+two
+type
+typed
+u
+under
+unique
+upper
+use
+user
+using
+utilities
+v
+var
+w
+want
+we
+web
+were
+what
+where
+which
+whose
+why
+with
+word
+words
+work
+working
+worry
+write
+x
+y
+you
+your
+z
+za
+This long list makes sense because words that are misspelled in Hawaiian on an
+English page, should be spelled right in English.
